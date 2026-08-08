@@ -9,7 +9,7 @@ import connectDB from "./config/db.js";
 // Routes
 import bannerRoutes from "./api/Home/Banner/BannerRoute.js";
 import seoRoutes from "./api/Seo/SeoRoute.js";
-
+import ServiceRoutes from "./api/Home/Services_Section/ServiceRoute.js";
 // import aboutRoutes from "./api/About/AboutRoute.js"; // add later
 
 // Error middleware (create if you don't have it)
@@ -36,6 +36,7 @@ app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 // API Routes
 app.use("/api/seo", seoRoutes);
 app.use("/api/home/banner", bannerRoutes);
+app.use("/api/services", ServiceRoutes);
 // app.use("/api/about", aboutRoutes);
 
 // Test route
