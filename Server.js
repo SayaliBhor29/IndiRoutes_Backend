@@ -11,7 +11,7 @@ import bannerRoutes from "./api/Home/Banner/BannerRoute.js";
 import seoRoutes from "./api/Seo/SeoRoute.js";
 import logoRoutes from "./api/Home/proudlyservelogos/logoRoutes.js";
 import authRoutes from "./api/auth/AuthRoute.js";
-
+import ServiceRoutes from "./api/Home/Services_Section/ServiceRoute.js";
 // import aboutRoutes from "./api/About/AboutRoute.js"; // add later
 import testimonialRoutes from "./api/Home/testimonial/testimonialRoutes.js";
 
@@ -43,6 +43,7 @@ app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 app.use("/api/seo", seoRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/home/banner", bannerRoutes);
+app.use("/api/services", ServiceRoutes);
 // app.use("/api/about", aboutRoutes);
 app.use("/api/logos", logoRoutes);
 app.use(
