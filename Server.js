@@ -9,13 +9,19 @@ import connectDB from "./config/db.js";
 // Routes
 import bannerRoutes from "./api/Home/Banner/BannerRoute.js";
 import seoRoutes from "./api/Seo/SeoRoute.js";
+import logoRoutes from "./api/Home/proudlyservelogos/logoRoutes.js";
+import authRoutes from "./api/auth/AuthRoute.js";
 
 // import aboutRoutes from "./api/About/AboutRoute.js"; // add later
+import testimonialRoutes from "./api/Home/testimonial/testimonialRoutes.js";
 
 // Error middleware (create if you don't have it)
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET must be set in .env before starting the server");
+}
 connectDB();
 
 const app = express();
@@ -35,8 +41,14 @@ app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 // API Routes
 app.use("/api/seo", seoRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/home/banner", bannerRoutes);
 // app.use("/api/about", aboutRoutes);
+app.use("/api/logos", logoRoutes);
+app.use(
+  "/api/testimonial",
+  testimonialRoutes
+);
 
 // Test route
 app.get("/", (req, res) => {
