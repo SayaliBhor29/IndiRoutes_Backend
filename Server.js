@@ -14,7 +14,12 @@ import authRoutes from "./api/auth/AuthRoute.js";
 import ServiceRoutes from "./api/Home/Services_Section/ServiceRoute.js";
 // import aboutRoutes from "./api/About/AboutRoute.js"; // add later
 import testimonialRoutes from "./api/Home/testimonial/testimonialRoutes.js";
-
+import industryRoutes from "./api/Home/Industry/IndustryRoute.js";
+import fleetInfrastructureRoutes from "./api/Home/FleetInfrastructure/fleetInfrastructureRoute.js";
+import warehouseRoutes from "./api/Network/WarehouseRoute.js";
+import ContactRoutes from "./api/ContactForm/ContactRoute.js";
+import CarrierOpening from "./api/contact/carrierOpeningRoutes.js";
+import Service from "./api/Service/ServiceRoute.js";
 // Error middleware (create if you don't have it)
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -44,6 +49,12 @@ app.use("/api/seo", seoRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/home/banner", bannerRoutes);
 app.use("/api/services", ServiceRoutes);
+app.use("/api/industries", industryRoutes);
+app.use("/api/fleet-infrastructure", fleetInfrastructureRoutes);
+app.use("/api/service", Service);
+app.use("/api/warehouses",warehouseRoutes);
+app.use("/api/contacts",ContactRoutes);
+app.use("/api/carrier-openings",CarrierOpening);
 // app.use("/api/about", aboutRoutes);
 app.use("/api/logos", logoRoutes);
 app.use(
