@@ -6,10 +6,10 @@ import {
   updateTestimonial,
   deleteTestimonial,
 } from "./testimonialController.js";
-import createUploadMiddleware from "../../../middleware/upload.js";
+import upload from "../../../middleware/upload.js";
 
 // Create a multer instance for the 'testimonials' sub-directory
-const upload = createUploadMiddleware("testimonials");
+// const upload = createUploadMiddleware("testimonials");
 
 const router = express.Router();
 

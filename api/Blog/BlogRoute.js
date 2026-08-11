@@ -7,7 +7,7 @@ import {
   updateBlog,
   deleteBlog,
 } from "./BlogController.js";
-import createUploadMiddleware from "../../middleware/upload.js";
+import upload from "../../middleware/upload.js";
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ const router = express.Router();
 // ==========================================
 // CREATE UPLOAD DIRECTORY
 // ==========================================
-const upload = createUploadMiddleware("blogs");
+// const upload = createUploadMiddleware("blogs");
 
 
 // ==========================================

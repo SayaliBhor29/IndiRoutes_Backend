@@ -1,21 +1,29 @@
 import express from "express";
+import upload from "../../../middleware/upload.js";
+
 import {
-  getLogos,
   createLogos,
+  getAllLogos,
+  getLogoById,
+  updateLogo,
   deleteLogo,
 } from "./logoController.js";
-import createUploadMiddleware from "../../../middleware/upload.js";
-
-// Create a multer instance for the 'logos' sub-directory
-const upload = createUploadMiddleware("logos");
 
 const router = express.Router();
 
-// Use upload.array() to handle multiple files under the 'images' field name
-router.route("/")
-  .get(getLogos)
-  .post(upload.array("images", 20), createLogos); // Allow up to 20 images
+// Multiple Upload
+router.post("/create", upload.array("images", 20), createLogos);
 
-router.route("/:id").delete(deleteLogo);
+// Get All
+router.get("/all", getAllLogos);
+
+// Get Single
+router.get("/:id", getLogoById);
+
+// Update Single Logo
+router.put("/update/:id", upload.single("image"), updateLogo);
+
+// Delete
+router.delete("/delete/:id", deleteLogo);
 
 export default router;

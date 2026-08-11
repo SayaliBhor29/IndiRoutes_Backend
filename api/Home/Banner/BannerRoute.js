@@ -6,9 +6,9 @@ import {
   updateBanner,
   deleteBanner,
 } from "./BannerController.js";
-import createUploadMiddleware from "../../../middleware/upload.js";
+import upload from "../../../middleware/upload.js";
 
-const upload = createUploadMiddleware("banners");
+// const upload = createUploadMiddleware("banners");
 
 const router = express.Router();
 
