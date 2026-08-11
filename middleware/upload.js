@@ -1,46 +1,57 @@
 import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-// __dirname fix for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const createUploadMiddleware = (subfolder) => {
+  const uploadDirectory = path.join('uploads', subfolder);
 
-// Ensure uploads folder exists at project root
-const uploadDir = path.join(__dirname, '../uploads');
-fs.mkdirSync(uploadDir, { recursive: true });
-
-// Set storage engine
-const storage = multer.diskStorage({
-  destination: function(req, file, cb){
-    cb(null, uploadDir);
-  },
-  filename: function(req, file, cb){
-    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  // Ensure the upload directory exists
+  if (!fs.existsSync(uploadDirectory)) {
+    fs.mkdirSync(uploadDirectory, {
+      recursive: true,
+    });
   }
-});
 
-// Init upload
-const upload = multer({
-  storage: storage,
-  limits:{fileSize: 1000000}, // Max file size 1MB (adjust as needed)
-  fileFilter: function(req, file, cb){
-    checkFileType(file, cb);
-  }
-});
+  // MULTER STORAGE
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadDirectory);
+    },
+    filename: function (req, file, cb) {
+      const uniqueName =
+        Date.now() +
+        '-' +
+        Math.round(Math.random() * 1e9) +
+        path.extname(file.originalname);
+      cb(null, uniqueName);
+    },
+  });
 
-// Check File Type
-function checkFileType(file, cb){
-  const filetypes = /jpeg|jpg|png|gif/; // Allowed extensions
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
+  // FILE FILTER
+  const fileFilter = (req, file, cb) => {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+    ];
 
-  if(mimetype && extname){
-    return cb(null,true);
-  } else {
-    cb('Error: Images Only!'); // Custom error message
-  }
-}
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPG, JPEG, PNG, WEBP, and GIF images are allowed'), false);
+    }
+  };
 
-export default upload;
+  // MULTER CONFIG
+  return multer({
+    storage,
+    fileFilter,
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB
+    },
+  });
+};
+
+export default createUploadMiddleware;

@@ -10,6 +10,7 @@ const bannerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    
     titleHighlight: {
       type: String,
       required: true,

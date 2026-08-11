@@ -1,157 +1,125 @@
+import asyncHandler from "express-async-handler";
 import Testimonial from "../../../models/Testimonial.js";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
-export const createTestimonial = async (req, res, next) => {
-  try {
-    const { name, role, company, review, rating } = req.body;
+// @desc    Get all testimonials
+// @route   GET /api/testimonial
+// @access  Public
+export const getTestimonials = asyncHandler(async (req, res) => {
+  const testimonials = await Testimonial.find({ status: true }).sort({ createdAt: -1 });
+  res.status(200).json({
+    success: true,
+    count: testimonials.length,
+    data: testimonials,
+  });
+});
 
-    const missingFields = [];
-    if (!name) missingFields.push("name");
-    if (!role) missingFields.push("role");
-    if (!company) missingFields.push("company");
-    if (!review) missingFields.push("review");
+// @desc    Get single testimonial
+// @route   GET /api/testimonial/:id
+// @access  Public
+export const getTestimonialById = asyncHandler(async (req, res) => {
+  const testimonial = await Testimonial.findById(req.params.id);
 
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required testimonial fields.",
-        missingFields,
-        receivedBody: req.body,
-      });
-    }
-
-    const testimonial = await Testimonial.create({
-      name: name.trim(),
-      role: role.trim(),
-      company: company.trim(),
-      review: review.trim(),
-      rating: rating ? Number(rating) : undefined,
-      image: req.file ? req.file.path.replace(/\\/g, "/") : "",
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "Testimonial Added",
-      data: testimonial,
-    });
-  } catch (err) {
-    next(err);
+  if (!testimonial) {
+    res.status(404);
+    throw new Error("Testimonial not found");
   }
-};
 
-export const getTestimonials = async (req, res, next) => {
-  try {
-    const data = await Testimonial.find({ status: true }).sort({
-      createdAt: -1,
-    });
+  res.status(200).json({
+    success: true,
+    data: testimonial,
+  });
+});
 
-    res.status(200).json({
-      success: true,
-      data,
-    });
-  } catch (err) {
-    next(err);
+// @desc    Create new testimonial
+// @route   POST /api/testimonial
+// @access  Private/Admin
+export const createTestimonial = asyncHandler(async (req, res) => {
+  const { ...testimonialData } = req.body;
+
+  if (req.file) {
+    const imageUrl = `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
+    testimonialData.image = imageUrl;
   }
-};
 
-export const getAllTestimonials = async (req, res, next) => {
-  try {
-    const data = await Testimonial.find().sort({
-      createdAt: -1,
-    });
+  const testimonial = await Testimonial.create(testimonialData);
 
-    res.status(200).json({
-      success: true,
-      data,
-    });
-  } catch (err) {
-    next(err);
+  res.status(201).json({
+    success: true,
+    data: testimonial,
+  });
+});
+
+// @desc    Update testimonial
+// @route   PUT /api/testimonial/:id
+// @access  Private/Admin
+export const updateTestimonial = asyncHandler(async (req, res) => {
+  let testimonial = await Testimonial.findById(req.params.id);
+
+  if (!testimonial) {
+    res.status(404);
+    throw new Error("Testimonial not found");
   }
-};
 
-export const getSingleTestimonial = async (req, res, next) => {
-  try {
-    const data = await Testimonial.findById(req.params.id);
-    if (!data) {
-      res.status(404);
-      throw new Error("Testimonial not found");
-    }
-    res.status(200).json({
-      success: true,
-      data,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+  const { ...updateData } = req.body;
 
-export const updateTestimonial = async (req, res, next) => {
-  try {
-    const testimonial = await Testimonial.findById(req.params.id);
-
-    if (!testimonial) {
-      res.status(404);
-      throw new Error("Testimonial not found");
-    }
-
-    if (req.file) {
-      if (testimonial.image) {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        const oldImagePath = path.resolve(__dirname, "../../..", testimonial.image);
-        fs.unlink(oldImagePath, (err) => {
-          if (err) console.error("Error deleting old testimonial image:", err);
-        });
-      }
-      testimonial.image = req.file.path.replace(/\\/g, "/");
-    }
-
-    testimonial.name = req.body.name || testimonial.name;
-    testimonial.role = req.body.role || testimonial.role;
-    testimonial.company = req.body.company || testimonial.company;
-    testimonial.review = req.body.review || testimonial.review;
-    testimonial.rating = req.body.rating || testimonial.rating;
-    testimonial.status = req.body.status === undefined ? testimonial.status : req.body.status;
-
-    const updatedTestimonial = await testimonial.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Updated Successfully",
-      data: updatedTestimonial,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const deleteTestimonial = async (req, res, next) => {
-  try {
-    const testimonial = await Testimonial.findById(req.params.id);
-
-    if (!testimonial) {
-      res.status(404);
-      throw new Error("Testimonial not found");
-    }
-
+  if (req.file) {
+    // Delete old image if it exists and is not a default placeholder
     if (testimonial.image) {
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
-      const imagePath = path.resolve(__dirname, "../../..", testimonial.image);
-      fs.unlink(imagePath, (err) => {
-        if (err) console.error("Error deleting testimonial image file:", err);
-      });
+      try {
+        const oldImagePath = testimonial.image.split(req.get("host"))[1];
+        const fullPath = path.join(path.resolve(), oldImagePath);
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
+        }
+      } catch (error) {
+        console.error(`Failed to delete old testimonial image: ${error.message}`);
+      }
     }
-
-    await testimonial.deleteOne();
-
-    res.status(200).json({
-      success: true,
-      message: "Deleted Successfully",
-    });
-  } catch (err) {
-    next(err);
+    const newImageUrl = `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
+    updateData.image = newImageUrl;
   }
-};
+
+  testimonial = await Testimonial.findByIdAndUpdate(req.params.id, updateData, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: testimonial,
+  });
+});
+
+// @desc    Delete testimonial
+// @route   DELETE /api/testimonial/:id
+// @access  Private/Admin
+export const deleteTestimonial = asyncHandler(async (req, res) => {
+  const testimonial = await Testimonial.findById(req.params.id);
+
+  if (!testimonial) {
+    res.status(404);
+    throw new Error("Testimonial not found");
+  }
+
+  // Delete image from server if it exists
+  if (testimonial.image) {
+    try {
+      const imagePath = testimonial.image.split(req.get("host"))[1];
+      const fullPath = path.join(path.resolve(), imagePath);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+      }
+    } catch (error) {
+      console.error(`Failed to delete testimonial image: ${error.message}`);
+    }
+  }
+
+  await testimonial.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: "Testimonial deleted successfully",
+  });
+});
