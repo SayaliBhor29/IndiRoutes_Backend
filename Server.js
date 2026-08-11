@@ -20,6 +20,8 @@ import warehouseRoutes from "./api/Network/WarehouseRoute.js";
 import ContactRoutes from "./api/ContactForm/ContactRoute.js";
 import CarrierOpening from "./api/contact/carrierOpeningRoutes.js";
 import Service from "./api/Service/ServiceRoute.js";
+import Blog from "./api/Blog/BlogRoute.js";
+
 // Error middleware (create if you don't have it)
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -55,6 +57,7 @@ app.use("/api/service", Service);
 app.use("/api/warehouses",warehouseRoutes);
 app.use("/api/contacts",ContactRoutes);
 app.use("/api/carrier-openings",CarrierOpening);
+app.use("/api/blog", Blog);
 // app.use("/api/about", aboutRoutes);
 app.use("/api/logos", logoRoutes);
 app.use(
