@@ -1,36 +1,27 @@
 import express from "express";
-
-import upload from "../../../middleware/upload.js";
-
 import {
-  createTestimonial,
   getTestimonials,
-  getAllTestimonials,
-  getSingleTestimonial,
+  getTestimonialById,
+  createTestimonial,
   updateTestimonial,
   deleteTestimonial,
 } from "./testimonialController.js";
+import upload from "../../../middleware/upload.js";
+
+// Create a multer instance for the 'testimonials' sub-directory
+// const upload = createUploadMiddleware("testimonials");
 
 const router = express.Router();
 
-router.post(
-  "/create",
-  upload.single("image"),
-  createTestimonial
-);
+router
+  .route("/")
+  .get(getTestimonials)
+  .post(upload.single("image"), createTestimonial);
 
-router.get("/", getTestimonials);
-
-router.get("/all", getAllTestimonials);
-
-router.get("/:id", getSingleTestimonial);
-
-router.put(
-  "/update/:id",
-  upload.single("image"),
-  updateTestimonial
-);
-
-router.delete("/delete/:id", deleteTestimonial);
+router
+  .route("/:id")
+  .get(getTestimonialById)
+  .put(upload.single("image"), updateTestimonial)
+  .delete(deleteTestimonial);
 
 export default router;
