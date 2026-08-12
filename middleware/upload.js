@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 // Init upload
 const upload = multer({
   storage: storage,
-  limits:{fileSize: 1000000}, // Max file size 1MB (adjust as needed)
+  limits:{fileSize: 20 * 1024 * 1024}, // Max file size 20MB
   fileFilter: function(req, file, cb){
     checkFileType(file, cb);
   }
@@ -32,14 +32,24 @@ const upload = multer({
 
 // Check File Type
 function checkFileType(file, cb){
-  const filetypes = /jpeg|jpg|png|gif/; // Allowed extensions
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
+  const allowedExtensions = [
+    ".jpeg", ".jpg", ".png", ".gif", ".pdf", ".ppt", ".pptx", ".xls", ".xlsx", ".csv",
+  ];
+  const allowedMimeTypes = [
+    "image/jpeg", "image/png", "image/gif", "application/pdf",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/csv", "application/csv",
+  ];
+  const extname = allowedExtensions.includes(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedMimeTypes.includes(file.mimetype);
 
   if(mimetype && extname){
     return cb(null,true);
   } else {
-    cb('Error: Images Only!'); // Custom error message
+    cb(new Error("Only image, PDF, PowerPoint, Excel, and CSV files are allowed."));
   }
 }
 

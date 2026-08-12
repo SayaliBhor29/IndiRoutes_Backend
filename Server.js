@@ -14,6 +14,10 @@ import authRoutes from "./api/auth/AuthRoute.js";
 import ServiceRoutes from "./api/Home/Services_Section/ServiceRoute.js";
 // import aboutRoutes from "./api/About/AboutRoute.js"; // add later
 import testimonialRoutes from "./api/Home/testimonial/testimonialRoutes.js";
+import aboutStatsRoutes from "./api/AboutPage/AboutstatsBar/aboutStatsRoutes.js";
+import certificateRoutes from "./api/AboutPage/certificatesection/certificateRoutes.js";  
+import galleryRoutes from "./api/AboutPage/gallery/galleryRoutes.js";
+import downloadRoutes from "./api/AboutPage/download/downloadRoutes.js";
 
 // Error middleware (create if you don't have it)
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -50,6 +54,13 @@ app.use(
   "/api/testimonial",
   testimonialRoutes
 );
+app.use("/api/about-stats", aboutStatsRoutes);
+app.use(
+  "/api/certificates",
+  certificateRoutes
+);
+app.use("/api/gallery", galleryRoutes);
+app.use("/api/download-resources", downloadRoutes);
 
 // Test route
 app.get("/", (req, res) => {
