@@ -13,10 +13,11 @@ import upload from "../../../middleware/upload.js";
 
 const router = express.Router();
 
-router
-  .route("/")
-  .get(getTestimonials)
-  .post(upload.single("image"), createTestimonial);
+router.route("/").get(getTestimonials);
+
+// @route   POST /api/testimonial/create
+// @desc    Create new testimonial
+router.route("/create").post(createTestimonial);
 
 router
   .route("/:id")

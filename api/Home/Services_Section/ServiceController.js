@@ -1,4 +1,5 @@
 import Service from "../../../models/ServiceModel.js";
+import { getUploadedFilePath, normalizeImageFields } from "../../../utils/uploadPath.js";
 
 export const getServices = async (req, res) => {
   try {
@@ -8,7 +9,7 @@ export const getServices = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: services,
+      data: normalizeImageFields(services),
     });
   } catch (error) {
     res.status(500).json({
@@ -32,7 +33,7 @@ export const getServiceById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: service,
+      data: normalizeImageFields(service),
     });
   } catch (error) {
     res.status(500).json({
@@ -47,13 +48,18 @@ export const createService = async (req, res) => {
   try {
     // Support both single object and array
     const data = Array.isArray(req.body) ? req.body : [req.body];
+    const image = getUploadedFilePath(req.file);
+    const servicesToCreate = data.map((service) => ({
+      ...service,
+      ...(image ? { image } : {}),
+    }));
 
-    const services = await Service.insertMany(data);
+    const services = await Service.insertMany(servicesToCreate);
 
     res.status(201).json({
       success: true,
       message: `${services.length} service(s) created successfully`,
-      data: services,
+      data: normalizeImageFields(services),
     });
   } catch (error) {
     res.status(500).json({
@@ -66,9 +72,15 @@ export const createService = async (req, res) => {
 
 export const updateService = async (req, res) => {
   try {
+    const updateData = { ...req.body };
+    const image = getUploadedFilePath(req.file);
+    if (image) {
+      updateData.image = image;
+    }
+
     const service = await Service.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -82,7 +94,7 @@ export const updateService = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Service updated successfully",
-      data: service,
+      data: normalizeImageFields(service),
     });
   } catch (error) {
     res.status(500).json({

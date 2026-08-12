@@ -6,6 +6,7 @@ import {
   updateService,
   deleteService,
 } from "./ServiceController.js";
+import upload from "../../../middleware/upload.js";
 
 const router = express.Router();
 
@@ -14,8 +15,8 @@ router.get("/", getServices);
 router.get("/:id", getServiceById);
 
 // Admin routes
-router.post("/", createService);
-router.put("/:id", updateService);
+router.post("/", upload.single("image"), createService);
+router.put("/:id", upload.single("image"), updateService);
 router.delete("/:id", deleteService);
 
 export default router;

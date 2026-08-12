@@ -1,7 +1,12 @@
 import asyncHandler from "express-async-handler";
 import Testimonial from "../../../models/Testimonial.js";
 import fs from "fs";
-import path from "path";
+import {
+  getLocalUploadFilePath,
+  getUploadedFilePath,
+  normalizeImageFields,
+} from "../../../utils/uploadPath.js";
+import upload from "../../../middleware/upload.js";
 
 // @desc    Get all testimonials
 // @route   GET /api/testimonial
@@ -11,7 +16,7 @@ export const getTestimonials = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     count: testimonials.length,
-    data: testimonials,
+    data: normalizeImageFields(testimonials),
   });
 });
 
@@ -28,26 +33,33 @@ export const getTestimonialById = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: testimonial,
+    data: normalizeImageFields(testimonial),
   });
 });
 
 // @desc    Create new testimonial
 // @route   POST /api/testimonial
 // @access  Private/Admin
-export const createTestimonial = asyncHandler(async (req, res) => {
-  const { ...testimonialData } = req.body;
+export const createTestimonial = asyncHandler(async (req, res, next) => {
+  // Use multer as a middleware function
+  upload.single("image")(req, res, async (err) => {
+    if (err) {
+      // A Multer error occurred when uploading.
+      return res.status(400).json({ success: false, message: err.message });
+    }
 
-  if (req.file) {
-    const imageUrl = `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
-    testimonialData.image = imageUrl;
-  }
+    const { ...testimonialData } = req.body;
 
-  const testimonial = await Testimonial.create(testimonialData);
+    if (req.file) {
+      testimonialData.image = getUploadedFilePath(req.file);
+    }
 
-  res.status(201).json({
-    success: true,
-    data: testimonial,
+    const testimonial = await Testimonial.create(testimonialData);
+
+    res.status(201).json({
+      success: true,
+      data: normalizeImageFields(testimonial),
+    });
   });
 });
 
@@ -68,17 +80,15 @@ export const updateTestimonial = asyncHandler(async (req, res) => {
     // Delete old image if it exists and is not a default placeholder
     if (testimonial.image) {
       try {
-        const oldImagePath = testimonial.image.split(req.get("host"))[1];
-        const fullPath = path.join(path.resolve(), oldImagePath);
-        if (fs.existsSync(fullPath)) {
-          fs.unlinkSync(fullPath);
+        const oldImagePath = getLocalUploadFilePath(testimonial.image);
+        if (oldImagePath && fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
         }
       } catch (error) {
         console.error(`Failed to delete old testimonial image: ${error.message}`);
       }
     }
-    const newImageUrl = `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
-    updateData.image = newImageUrl;
+    updateData.image = getUploadedFilePath(req.file);
   }
 
   testimonial = await Testimonial.findByIdAndUpdate(req.params.id, updateData, {
@@ -88,7 +98,7 @@ export const updateTestimonial = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: testimonial,
+    data: normalizeImageFields(testimonial),
   });
 });
 
@@ -106,10 +116,9 @@ export const deleteTestimonial = asyncHandler(async (req, res) => {
   // Delete image from server if it exists
   if (testimonial.image) {
     try {
-      const imagePath = testimonial.image.split(req.get("host"))[1];
-      const fullPath = path.join(path.resolve(), imagePath);
-      if (fs.existsSync(fullPath)) {
-        fs.unlinkSync(fullPath);
+      const imagePath = getLocalUploadFilePath(testimonial.image);
+      if (imagePath && fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
       }
     } catch (error) {
       console.error(`Failed to delete testimonial image: ${error.message}`);

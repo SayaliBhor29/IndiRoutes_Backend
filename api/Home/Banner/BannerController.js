@@ -1,6 +1,11 @@
 import asyncHandler from "express-async-handler";
 import Banner from "../../../models/BannerModel.js";
 import fs from "fs";
+import {
+  getLocalUploadFilePath,
+  getUploadedFilePath,
+  normalizeImageFields,
+} from "../../../utils/uploadPath.js";
 
 // @desc    Get all active banners
 // @route   GET /api/home/banner
@@ -10,7 +15,7 @@ export const getBanners = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     count: banners.length,
-    data: banners,
+    data: normalizeImageFields(banners),
   });
 });
 
@@ -27,7 +32,7 @@ export const getBannerById = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: banner,
+    data: normalizeImageFields(banner),
   });
 });
 
@@ -38,11 +43,14 @@ export const createBanner = asyncHandler(async (req, res) => {
   const { ...bannerData } = req.body;
 
   if (req.file) {
-    const imageUrl = `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
-    bannerData.image = imageUrl;
+    bannerData.image = getUploadedFilePath(req.file);
   } else {
     res.status(400);
     throw new Error("Banner image is required");
+  }
+
+  if (bannerData.isActive !== undefined) {
+    bannerData.isActive = String(bannerData.isActive).trim() === "true";
   }
 
   const banner = await Banner.create({
@@ -69,16 +77,17 @@ export const updateBanner = asyncHandler(async (req, res) => {
 
   const { ...updateData } = req.body;
 
+  if (updateData.isActive !== undefined) {
+    updateData.isActive = String(updateData.isActive).trim() === "true";
+  }
+
   if (req.file) {
     // Delete old image if it exists
-    if (banner.image) {
-      const oldImagePath = banner.image.split(req.get("host"))[1];
-      if (fs.existsSync(`.${oldImagePath}`)) {
-        fs.unlinkSync(`.${oldImagePath}`);
-      }
+    const oldImagePath = getLocalUploadFilePath(banner.image);
+    if (oldImagePath && fs.existsSync(oldImagePath)) {
+      fs.unlinkSync(oldImagePath);
     }
-    const newImageUrl = `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
-    updateData.image = newImageUrl;
+    updateData.image = getUploadedFilePath(req.file);
   }
 
   banner = await Banner.findByIdAndUpdate(req.params.id, updateData, {
@@ -88,7 +97,7 @@ export const updateBanner = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: banner,
+    data: normalizeImageFields(banner),
   });
 });
 
@@ -104,11 +113,9 @@ export const deleteBanner = asyncHandler(async (req, res) => {
   }
 
   // Delete image from server
-  if (banner.image) {
-    const imagePath = banner.image.split(req.get("host"))[1];
-    if (fs.existsSync(`.${imagePath}`)) {
-      fs.unlinkSync(`.${imagePath}`);
-    }
+  const imagePath = getLocalUploadFilePath(banner.image);
+  if (imagePath && fs.existsSync(imagePath)) {
+    fs.unlinkSync(imagePath);
   }
 
   await banner.deleteOne();
