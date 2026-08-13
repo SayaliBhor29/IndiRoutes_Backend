@@ -1,4 +1,10 @@
 import Blog from "../../models/blogs.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Store the uploaded image path in the same format used by the logo module.
+const getBlogImagePath = (file) => file.path.replace(/\\/g, "/");
 
 // ==========================================
 // GET ALL BLOGS
@@ -108,7 +114,7 @@ export const createBlog = async (req, res) => {
     }
 
     // Image URL
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/blogs/${req.file.filename}`;
+    const imageUrl = getBlogImagePath(req.file);
 
     const blog = await Blog.create({
       title,
@@ -162,6 +168,8 @@ export const updateBlog = async (req, res) => {
       published,
     } = req.body;
 
+    const previousTitle = blog.title;
+
     // Update text fields
     blog.title = title || blog.title;
     blog.description = description || blog.description;
@@ -175,7 +183,7 @@ export const updateBlog = async (req, res) => {
     }
 
     // Update title + slug if title changed
-    if (title && title !== blog.title) {
+    if (title && title !== previousTitle) {
       blog.slug = title
         .toLowerCase()
         .trim()
@@ -185,7 +193,7 @@ export const updateBlog = async (req, res) => {
 
     // Update image if new image uploaded
     if (req.file) {
-      blog.image = `${req.protocol}://${req.get("host")}/uploads/blogs/${req.file.filename}`;
+      blog.image = getBlogImagePath(req.file);
     }
 
     await blog.save();
