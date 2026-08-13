@@ -1,4 +1,41 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import Warehouse from "../../models/Warehouse.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const deleteImageFile = (image) => {
+  if (!image) return;
+
+  const imagePath = path.resolve(__dirname, "../../", image);
+  fs.unlink(imagePath, (error) => {
+    if (error && error.code !== "ENOENT") {
+      console.error("Error deleting warehouse image:", error);
+    }
+  });
+};
+
+const parsePoints = (points) => {
+  if (Array.isArray(points) || points === undefined) return points;
+
+  if (typeof points === "string") {
+    return JSON.parse(points);
+  }
+
+  return points;
+};
+
+const parseBoolean = (value) => {
+  if (typeof value !== "string") return value;
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+
+  return value;
+};
 
 // GET all active warehouses
 export const getWarehouses = async (req, res) => {
@@ -50,13 +87,10 @@ export const getAllWarehouses = async (req, res) => {
 // CREATE warehouse
 export const createWarehouse = async (req, res) => {
   try {
-    const {
-      image,
-      title,
-      points,
-      order,
-      isActive,
-    } = req.body;
+    const { title, order } = req.body;
+    const image = req.file?.path.replace(/\\/g, "/");
+    const points = parsePoints(req.body.points);
+    const isActive = parseBoolean(req.body.isActive);
 
     if (!image || !title || !points) {
       return res.status(400).json({
@@ -100,13 +134,9 @@ export const createWarehouse = async (req, res) => {
 // UPDATE warehouse
 export const updateWarehouse = async (req, res) => {
   try {
-    const {
-      image,
-      title,
-      points,
-      order,
-      isActive,
-    } = req.body;
+    const { title, order } = req.body;
+    const points = parsePoints(req.body.points);
+    const isActive = parseBoolean(req.body.isActive);
 
     if (points && !Array.isArray(points)) {
       return res.status(400).json({
@@ -115,20 +145,7 @@ export const updateWarehouse = async (req, res) => {
       });
     }
 
-    const warehouse = await Warehouse.findByIdAndUpdate(
-      req.params.id,
-      {
-        image,
-        title,
-        points,
-        order,
-        isActive,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const warehouse = await Warehouse.findById(req.params.id);
 
     if (!warehouse) {
       return res.status(404).json({
@@ -136,6 +153,18 @@ export const updateWarehouse = async (req, res) => {
         message: "Warehouse not found",
       });
     }
+
+    if (req.file) {
+      deleteImageFile(warehouse.image);
+      warehouse.image = req.file.path.replace(/\\/g, "/");
+    }
+
+    if (title !== undefined) warehouse.title = title;
+    if (points !== undefined) warehouse.points = points;
+    if (order !== undefined) warehouse.order = order;
+    if (isActive !== undefined) warehouse.isActive = isActive;
+
+    await warehouse.save();
 
     res.status(200).json({
       success: true,
@@ -167,6 +196,8 @@ export const deleteWarehouse = async (req, res) => {
         message: "Warehouse not found",
       });
     }
+
+    deleteImageFile(warehouse.image);
 
     res.status(200).json({
       success: true,
