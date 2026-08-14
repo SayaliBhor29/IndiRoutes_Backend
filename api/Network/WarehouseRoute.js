@@ -1,4 +1,5 @@
 import express from "express";
+import upload from "../../middleware/upload.js";
 
 import {
   getWarehouses,
@@ -14,9 +15,9 @@ router.get("/", getWarehouses);
 
 router.get("/all", getAllWarehouses);
 
-router.post("/", createWarehouse);
+router.post("/", upload.single("image"), createWarehouse);
 
-router.put("/:id", updateWarehouse);
+router.put("/:id", upload.single("image"), updateWarehouse);
 
 router.delete("/:id", deleteWarehouse);
 
