@@ -143,11 +143,11 @@
 import Logo from "../../../models/Logo.js";
 import fs from "fs";
 
-import {
-  getUploadedFilePath,
-  normalizeImageFields,
-  getLocalUploadFilePath,
-} from "../../../utils/uploadpath.js";
+// import {
+//   getUploadedFilePath,
+//   normalizeImageFields,
+//   getLocalUploadFilePath,
+// } from "../../../utils/uploadpath.js";
 
 
 // =====================================================
