@@ -3,7 +3,7 @@ import Industry from "../../../models/Industry.js";
 // GET all industries
 export const getIndustries = async (req, res) => {
   try {
-    const industries = await Industry.find({ isActive: true })
+    const industries = await Industry.find({})
       .sort({ order: 1 })
       .select("name icon order");
 
@@ -50,7 +50,7 @@ export const getIndustryById = async (req, res) => {
 // CREATE industry
 export const createIndustry = async (req, res) => {
   try {
-    const { name, icon, order, isActive } = req.body;
+    const { name, icon, order } = req.body;
 
     if (!name || !icon) {
       return res.status(400).json({
@@ -72,7 +72,6 @@ export const createIndustry = async (req, res) => {
       name,
       icon,
       order,
-      isActive,
     });
 
     res.status(201).json({
@@ -92,7 +91,7 @@ export const createIndustry = async (req, res) => {
 // UPDATE industry
 export const updateIndustry = async (req, res) => {
   try {
-    const { name, icon, order, isActive } = req.body;
+    const { name, icon, order } = req.body;
 
     const industry = await Industry.findByIdAndUpdate(
       req.params.id,
@@ -100,7 +99,6 @@ export const updateIndustry = async (req, res) => {
         name,
         icon,
         order,
-        isActive,
       },
       {
         new: true,
