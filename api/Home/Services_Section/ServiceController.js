@@ -140,11 +140,7 @@ export const getServices = async (req, res) => {
 
     res.status(200).json({
       success: true,
-<<<<<<< HEAD
-      data: normalizeImageFields(services),
-=======
       data: services,
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
     });
   } catch (error) {
     res.status(500).json({
@@ -155,10 +151,6 @@ export const getServices = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
 export const getServiceById = async (req, res) => {
   try {
     const service = await Service.findById(req.params.id);
@@ -172,11 +164,7 @@ export const getServiceById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-<<<<<<< HEAD
-      data: normalizeImageFields(service),
-=======
       data: service,
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
     });
   } catch (error) {
     res.status(500).json({
@@ -187,24 +175,6 @@ export const getServiceById = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-export const createService = async (req, res) => {
-  try {
-    // Support both single object and array
-    const data = Array.isArray(req.body) ? req.body : [req.body];
-    const image = getUploadedFilePath(req.file);
-    const servicesToCreate = data.map((service) => ({
-      ...service,
-      ...(image ? { image } : {}),
-    }));
-
-    const services = await Service.insertMany(servicesToCreate);
-
-    res.status(201).json({
-      success: true,
-      message: `${services.length} service(s) created successfully`,
-      data: normalizeImageFields(services),
-=======
 
 export const createService = async (req, res) => {
   try {
@@ -223,7 +193,6 @@ export const createService = async (req, res) => {
       success: true,
       message: "Service created successfully",
       data: service,
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
     });
   } catch (error) {
     res.status(500).json({
@@ -234,14 +203,6 @@ export const createService = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-export const updateService = async (req, res) => {
-  try {
-    const updateData = { ...req.body };
-    const image = getUploadedFilePath(req.file);
-    if (image) {
-      updateData.image = image;
-=======
 
 export const updateService = async (req, res) => {
   try {
@@ -252,20 +213,15 @@ export const updateService = async (req, res) => {
     // Replace image only if new image uploaded
     if (req.file) {
       updateData.image = req.file.location;
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
     }
 
     const service = await Service.findByIdAndUpdate(
       req.params.id,
       updateData,
-<<<<<<< HEAD
-      { new: true, runValidators: true }
-=======
       {
         new: true,
         runValidators: true,
       }
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
     );
 
     if (!service) {
@@ -278,11 +234,7 @@ export const updateService = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Service updated successfully",
-<<<<<<< HEAD
-      data: normalizeImageFields(service),
-=======
       data: service,
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
     });
   } catch (error) {
     res.status(500).json({
@@ -293,10 +245,6 @@ export const updateService = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
 export const deleteService = async (req, res) => {
   try {
     const service = await Service.findByIdAndDelete(req.params.id);
@@ -319,8 +267,4 @@ export const deleteService = async (req, res) => {
       error: error.message,
     });
   }
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665

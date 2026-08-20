@@ -162,17 +162,11 @@ export const getTestimonials = asyncHandler(async (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-// @desc    Get single testimonial
-// @route   GET /api/testimonial/:id
-// @access  Public
-=======
 // =====================================================
 // GET SINGLE TESTIMONIAL
 // GET /api/testimonial/:id
 // =====================================================
 
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
 export const getTestimonialById = asyncHandler(async (req, res) => {
   const testimonial = await Testimonial.findById(req.params.id);
 
@@ -187,76 +181,6 @@ export const getTestimonialById = asyncHandler(async (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-// @desc    Create new testimonial
-// @route   POST /api/testimonial
-// @access  Private/Admin
-export const createTestimonial = asyncHandler(async (req, res, next) => {
-  // Use multer as a middleware function
-  upload.single("image")(req, res, async (err) => {
-    if (err) {
-      // A Multer error occurred when uploading.
-      return res.status(400).json({ success: false, message: err.message });
-    }
-
-    const { ...testimonialData } = req.body;
-
-    if (req.file) {
-      testimonialData.image = getUploadedFilePath(req.file);
-    }
-
-    const testimonial = await Testimonial.create(testimonialData);
-
-    res.status(201).json({
-      success: true,
-      data: normalizeImageFields(testimonial),
-    });
-  });
-});
-
-// @desc    Update testimonial
-// @route   PUT /api/testimonial/:id
-// @access  Private/Admin
-export const updateTestimonial = asyncHandler(async (req, res) => {
-  let testimonial = await Testimonial.findById(req.params.id);
-
-  if (!testimonial) {
-    res.status(404);
-    throw new Error("Testimonial not found");
-  }
-
-  const { ...updateData } = req.body;
-
-  if (req.file) {
-    // Delete old image if it exists and is not a default placeholder
-    if (testimonial.image) {
-      try {
-        const oldImagePath = getLocalUploadFilePath(testimonial.image);
-        if (oldImagePath && fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      } catch (error) {
-        console.error(`Failed to delete old testimonial image: ${error.message}`);
-      }
-    }
-    updateData.image = getUploadedFilePath(req.file);
-  }
-
-  testimonial = await Testimonial.findByIdAndUpdate(req.params.id, updateData, {
-    new: true,
-    runValidators: true,
-  });
-
-  res.status(200).json({
-    success: true,
-    data: normalizeImageFields(testimonial),
-  });
-});
-
-// @desc    Delete testimonial
-// @route   DELETE /api/testimonial/:id
-// @access  Private/Admin
-=======
 // =====================================================
 // CREATE TESTIMONIAL
 // POST /api/testimonial/create
@@ -485,7 +409,6 @@ export const updateTestimonial = asyncHandler(async (req, res) => {
 // DELETE /api/testimonial/:id
 // =====================================================
 
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
 export const deleteTestimonial = asyncHandler(async (req, res) => {
   const testimonial = await Testimonial.findById(req.params.id);
 
@@ -494,12 +417,6 @@ export const deleteTestimonial = asyncHandler(async (req, res) => {
     throw new Error("Testimonial not found");
   }
 
-<<<<<<< HEAD
-  // Delete image from server if it exists
-  if (testimonial.image) {
-    try {
-      const imagePath = getLocalUploadFilePath(testimonial.image);
-=======
   /*
    * If image is an old local upload,
    * delete it from local storage.
@@ -519,18 +436,13 @@ export const deleteTestimonial = asyncHandler(async (req, res) => {
         testimonial.image
       );
 
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
       if (imagePath && fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
       }
     } catch (error) {
-<<<<<<< HEAD
-      console.error(`Failed to delete testimonial image: ${error.message}`);
-=======
       console.error(
         `Failed to delete old image: ${error.message}`
       );
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
     }
   }
 
@@ -540,8 +452,4 @@ export const deleteTestimonial = asyncHandler(async (req, res) => {
     success: true,
     message: "Testimonial deleted successfully",
   });
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> 3fd17596fbc856103d26f00f07556d27f530d665
