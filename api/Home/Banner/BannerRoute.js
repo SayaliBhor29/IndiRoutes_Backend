@@ -1,4 +1,29 @@
+// import express from "express";
+// import {
+//   getBanners,
+//   getBannerById,
+//   createBanner,
+//   updateBanner,
+//   deleteBanner,
+// } from "./BannerController.js";
+// import upload from "../../../middleware/upload.js";
+
+// // const upload = createUploadMiddleware("banners");
+
+// const router = express.Router();
+
+// router
+//   .route("/")
+//   .get(getBanners)
+//   .post(upload.single("image"), createBanner);
+
+// router.route("/:id").get(getBannerById).put(upload.single("image"), updateBanner).delete(deleteBanner);
+
+// export default router;
+
 import express from "express";
+import upload from "../../../middleware/upload.js";
+
 import {
   getBanners,
   getBannerById,
@@ -6,17 +31,28 @@ import {
   updateBanner,
   deleteBanner,
 } from "./BannerController.js";
-import upload from "../../../middleware/upload.js";
-
-// const upload = createUploadMiddleware("banners");
 
 const router = express.Router();
 
-router
-  .route("/")
-  .get(getBanners)
-  .post(upload.single("image"), createBanner);
+router.get("/", getBanners);
 
-router.route("/:id").get(getBannerById).put(upload.single("image"), updateBanner).delete(deleteBanner);
+router.get("/:id", getBannerById);
+
+router.post(
+  "/",
+  upload.single("image"),
+  createBanner
+);
+
+router.put(
+  "/:id",
+  upload.single("image"),
+  updateBanner
+);
+
+router.delete(
+  "/:id",
+  deleteBanner
+);
 
 export default router;

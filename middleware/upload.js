@@ -56,162 +56,207 @@
 // export default upload;
 
 
-import fs from "fs";
-import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
+// import fs from "fs";
+// import multer from "multer";
+// import path from "path";
+// import { fileURLToPath } from "url";
 
 
 // =====================================================
 // __dirname FIX FOR ES MODULES
 // =====================================================
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-
-// =====================================================
-// UPLOAD DIRECTORY
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 // =====================================================
 
-// If this upload.js is inside:
 // project/middleware/upload.js
 //
 // then ../uploads = project/uploads
 
-const uploadDir = path.join(__dirname, "../uploads");
+// const uploadDir = path.join(__dirname, "../uploads");
 
 
 // Create uploads directory if not exists
-fs.mkdirSync(uploadDir, {
-  recursive: true,
-});
+// fs.mkdirSync(uploadDir, {
+//   recursive: true,
+// });
 
 
 // =====================================================
 // MULTER STORAGE
 // =====================================================
 
-const storage = multer.diskStorage({
+// const storage = multer.diskStorage({
 
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
+//   destination: function (req, file, cb) {
+//     cb(null, uploadDir);
+//   },
 
 
-  filename: function (req, file, cb) {
+//   filename: function (req, file, cb) {
 
-    const extension = path.extname(
-      file.originalname
-    ).toLowerCase();
+//     const extension = path.extname(
+//       file.originalname
+//     ).toLowerCase();
 
-    const filename =
-      file.fieldname +
-      "-" +
-      Date.now() +
-      extension;
+//     const filename =
+//       file.fieldname +
+//       "-" +
+//       Date.now() +
+//       extension;
 
-    cb(null, filename);
-  },
+//     cb(null, filename);
+//   },
 
-});
+// });
 
 
 // =====================================================
 // FILE TYPE CHECK
 // =====================================================
 
-function checkFileType(file, cb) {
+// function checkFileType(file, cb) {
 
-  const allowedExtensions = [
+//   const allowedExtensions = [
 
-    ".jpeg",
-    ".jpg",
-    ".png",
-    ".gif",
+//     ".jpeg",
+//     ".jpg",
+//     ".png",
+//     ".gif",
 
-    ".pdf",
+//     ".pdf",
 
-    ".ppt",
-    ".pptx",
+//     ".ppt",
+//     ".pptx",
 
-    ".xls",
-    ".xlsx",
+//     ".xls",
+//     ".xlsx",
 
-    ".csv",
+//     ".csv",
 
-  ];
-
-
-  const allowedMimeTypes = [
-
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-
-    "application/pdf",
-
-    "application/vnd.ms-powerpoint",
-
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-
-    "application/vnd.ms-excel",
-
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-
-    "text/csv",
-
-    "application/csv",
-
-  ];
+//   ];
 
 
-  const extension = path
-    .extname(file.originalname)
-    .toLowerCase();
+//   const allowedMimeTypes = [
+
+//     "image/jpeg",
+//     "image/png",
+//     "image/gif",
+
+//     "application/pdf",
+
+//     "application/vnd.ms-powerpoint",
+
+//     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+
+//     "application/vnd.ms-excel",
+
+//     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+
+//     "text/csv",
+
+//     "application/csv",
+
+//   ];
 
 
-  const extname =
-    allowedExtensions.includes(extension);
+//   const extension = path
+//     .extname(file.originalname)
+//     .toLowerCase();
 
 
-  const mimetype =
-    allowedMimeTypes.includes(file.mimetype);
+//   const extname =
+//     allowedExtensions.includes(extension);
 
 
-  if (extname && mimetype) {
-
-    return cb(null, true);
-
-  }
+//   const mimetype =
+//     allowedMimeTypes.includes(file.mimetype);
 
 
-  return cb(
-    new Error(
-      "Only image, PDF, PowerPoint, Excel, and CSV files are allowed."
-    )
-  );
+//   if (extname && mimetype) {
 
-}
+//     return cb(null, true);
+
+//   }
+
+
+//   return cb(
+//     new Error(
+//       "Only image, PDF, PowerPoint, Excel, and CSV files are allowed."
+//     )
+//   );
+
+// }
 
 
 // =====================================================
 // MULTER UPLOAD
 // =====================================================
 
-const upload = multer({
+// const upload = multer({
 
-  storage: storage,
+//   storage: storage,
+
+//   limits: {
+//     fileSize: 20 * 1024 * 1024, // 20 MB
+//   },
+
+//   fileFilter: function (req, file, cb) {
+//     checkFileType(file, cb);
+//   },
+
+// });
+
+
+// export default upload;
+
+
+import multer from "multer";
+import multerS3 from "multer-s3";
+import s3 from "../utils/s3.js";
+
+const upload = multer({
+  storage: multerS3({
+    s3,
+    bucket: process.env.AWS_S3_BUCKET_NAME,
+
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+
+    key: (req, file, cb) => {
+      const fileName =
+        `${Date.now()}-${file.originalname}`
+          .replace(/\s+/g, "-");
+
+      cb(
+        null,
+        `banners/${fileName}`
+      );
+    },
+  }),
+
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(
+        new Error(
+          "Only JPG, JPEG, PNG and WEBP images are allowed"
+        )
+      );
+    }
+  },
 
   limits: {
-    fileSize: 20 * 1024 * 1024, // 20 MB
+    fileSize: 5 * 1024 * 1024,
   },
-
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
-  },
-
 });
-
 
 export default upload;

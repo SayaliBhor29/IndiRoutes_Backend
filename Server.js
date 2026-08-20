@@ -1,5 +1,6 @@
+import "dotenv/config";
+
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 import path from "path";
@@ -30,10 +31,13 @@ import Blog from "./api/Blog/BlogRoute.js";
 // Error middleware (create if you don't have it)
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
-dotenv.config();
-if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET must be set in .env before starting the server");
-}
+
+// console.log("AWS REGION:", process.env.AWS_REGION);
+// console.log("AWS BUCKET:", process.env.AWS_S3_BUCKET_NAME);
+// dotenv.config();
+// if (!process.env.JWT_SECRET) {
+//   throw new Error("JWT_SECRET must be set in .env before starting the server");
+// }
 connectDB();
 
 const app = express();
