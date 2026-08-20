@@ -29,6 +29,7 @@ export const getFleetInfrastructure = async (req, res) => {
 export const createFleetInfrastructure = async (req, res) => {
   try {
     const {
+      icon,
       value,
       title,
       description,
@@ -36,7 +37,7 @@ export const createFleetInfrastructure = async (req, res) => {
       isActive,
     } = req.body;
 
-    if (!value || !title || !description) {
+    if (!icon || !value || !title || !description) {
       return res.status(400).json({
         success: false,
         message: "Value, title and description are required",
@@ -44,6 +45,7 @@ export const createFleetInfrastructure = async (req, res) => {
     }
 
     const card = await FleetInfrastructure.create({
+      icon,
       value,
       title,
       description,
@@ -72,6 +74,7 @@ export const createFleetInfrastructure = async (req, res) => {
 export const updateFleetInfrastructure = async (req, res) => {
   try {
     const {
+      icon,
       value,
       title,
       description,
@@ -82,6 +85,7 @@ export const updateFleetInfrastructure = async (req, res) => {
     const card = await FleetInfrastructure.findByIdAndUpdate(
       req.params.id,
       {
+        icon,
         value,
         title,
         description,

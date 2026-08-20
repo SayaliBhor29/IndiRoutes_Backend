@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const fleetCardSchema = new mongoose.Schema(
   {
+     icon: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     value: {
       type: String,
       required: true,
