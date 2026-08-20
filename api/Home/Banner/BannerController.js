@@ -197,7 +197,6 @@ export const createBanner = asyncHandler(async (req, res) => {
   });
 });
 
-
 // @desc    Update banner
 // @route   PUT /api/home/banner/:id
 // @access  Private/Admin

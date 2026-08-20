@@ -151,7 +151,6 @@ export const getServices = async (req, res) => {
   }
 };
 
-
 export const getServiceById = async (req, res) => {
   try {
     const service = await Service.findById(req.params.id);
@@ -245,7 +244,6 @@ export const updateService = async (req, res) => {
     });
   }
 };
-
 
 export const deleteService = async (req, res) => {
   try {

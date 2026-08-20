@@ -31,7 +31,6 @@ import {
   updateService,
   deleteService,
 } from "./ServiceController.js";
-
 import upload from "../../../middleware/upload.js";
 
 const router = express.Router();

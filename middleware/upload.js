@@ -68,13 +68,8 @@
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
-
-
-// =====================================================
-// UPLOAD DIRECTORY
 // =====================================================
 
-// If this upload.js is inside:
 // project/middleware/upload.js
 //
 // then ../uploads = project/uploads
