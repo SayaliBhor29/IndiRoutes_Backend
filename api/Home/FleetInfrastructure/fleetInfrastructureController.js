@@ -1,13 +1,14 @@
 import FleetInfrastructure from "../../../models/FleetInfrastructure.js";
 
 // GET all fleet cards
+// GET all fleet cards
 export const getFleetInfrastructure = async (req, res) => {
   try {
     const cards = await FleetInfrastructure.find({
       isActive: true,
     })
       .sort({ order: 1 })
-      .select("value title description order isActive");
+      .select("icon value title description order isActive");
 
     res.status(200).json({
       success: true,
@@ -40,7 +41,7 @@ export const createFleetInfrastructure = async (req, res) => {
     if (!icon || !value || !title || !description) {
       return res.status(400).json({
         success: false,
-        message: "Value, title and description are required",
+        message: "icon, Value, title and description are required",
       });
     }
 

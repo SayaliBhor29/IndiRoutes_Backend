@@ -4,4 +4,6 @@ node_modules/
 !.env.example
 uploads/
 dist/
-build/
+build/.env
+.env.*
+!.env.example
